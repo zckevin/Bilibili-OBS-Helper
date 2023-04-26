@@ -71,11 +71,10 @@ async function fetchLiveKey() {
     await page.locator('button:has-text("关闭直播")').waitFor();
     await doneCb();
   }
+
   async function liveIsOff() {
-    const categoryLocator = page.locator(`a:has-text("选择分类")`);
-    await categoryLocator.waitFor();
-    await categoryLocator.click();
-    await page.locator('div.live-category  a:has-text("陪伴学习")').click();
+    await page.locator(`a:has-text("选择分类")`).click();
+    await page.getByText("校园学习").click();
     await page.locator('button:has-text("开始直播")').click();
     await doneCb();
   }
