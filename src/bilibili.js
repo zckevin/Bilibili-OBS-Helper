@@ -1,42 +1,17 @@
 const { chromium } = require('playwright');
-const fs = require("fs")
-const path = require("path")
-
-const cookieFilePath = path.join(__dirname, "../cookie.txt");
-
-function parseCookieString(cookieString) {
-  const arr = cookieString.split("; ").filter(_ => _);
-  return arr.map(s => {
-    const [name, value] = s.split("=");
-    return {
-      name,
-      value: value.trim(),
-      path: "/",
-      domain: ".bilibili.com",
-      secure: true,
-    }
-  })
-}
-
-function readCookieFile() {
-  const cookieString = fs.readFileSync(cookieFilePath, "utf8");
-  if (!cookieString) {
-    throw new Error("Cookie file empty.")
-  }
-  return cookieString;
-}
-
-function sleep(time) {
-  return new Promise((resolve) => setTimeout(resolve, Math.ceil(time)));
-}
+const { parseCookieString, sleep } = require("./utils");
 
 async function fetchLiveKey() {
   const browser = await chromium.launch({
+    // in case the control script is out of control
     headless: false,
   });
   const context = await browser.newContext();
-  const cookies = parseCookieString(readCookieFile())
-  // console.log(cookies);
+  const cookieString = process.env.BILIBILI_COOKIE;
+  if (!cookieString) {
+    throw new Error("cookie string in .env is empty")
+  }
+  const cookies = parseCookieString(cookieString)
   context.addCookies(cookies);
 
   const page = await context.newPage();
